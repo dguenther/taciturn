@@ -5,7 +5,7 @@ class Unit:
         self.ct = 0
         self.order_num = 0
         self.statuses = []
-        self.slow_actions = []
+        self.slow_action = None
         
     def __init__(self, name, speed):
         self.name = name
@@ -13,7 +13,7 @@ class Unit:
         self.ct = 0
         self.order_num = 0
         self.statuses = []
-        self.slow_actions = []
+        self.slow_action = None
         
     def __str__(self):
         return self.name

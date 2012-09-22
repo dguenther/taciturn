@@ -47,6 +47,7 @@ class Battle:
                     # execute action
                 # remove the key
                 del self.slow_action_order[1]
+                # TODO: add/remove slow actions from units
             else:
                 # decrease clocktick
                 self.slow_action_order[key-1] = self.slow_action_order[key]
@@ -67,6 +68,17 @@ class Battle:
         for key,value in unit_order.iteritems():
             turn_list[key].extend(value)
         return turn_list
+        
+    def generate_turn_list2(self):
+        # unit tuple: (virtual_ct, tick, unit)
+        # set up queue of tuples:
+        # ( generate ticks, set up virtual_ct )
+        # sort the queue by ticks, then order number if ticks are equal
+        # set up slow action queue
+        # while turn_list < 20:
+        # pull minimum tick from (slow action queue, unit queue)
+        # if from unit queue, update tick and ct and re-sort
+        
         
     def active_turn_phase(self):
         for unit in units:
