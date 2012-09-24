@@ -20,6 +20,7 @@ class Battle:
         
     def setup(self):
         for unit in self.units:
+            # default ct is 50
             unit.ct = 50
             self.turn_order.append((self.next_turn_tick(unit).next(), unit))
             self.turn_order.sort(cmp=self.turn_order_compare)
@@ -50,9 +51,7 @@ class Battle:
                 # slice the array to sort smaller portion
                 # for performance reasons at small (<10k) list sizes
                 order_display.append((t, item))
-                to_sort = order_display[idx:]
-                to_sort.sort(cmp=self.turn_order_compare)
-                order_display = order_display[:idx] + to_sort
+                order_display[idx:] = sorted(order_display[idx:], cmp=self.turn_order_compare)
             idx += 1
         return order_display
 
