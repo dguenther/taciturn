@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div>
+    <form action="{{ url_for('upload_units') }}" method="POST">
+        <a href="{{ url_for('edit_unit', campaign_id=campaign_id, battle_id=battle_id) }}">Add New Unit</a>
+        <ul id="unit_list">
+        {% for u in units %}
+            <li><div>{{ u.name }}</div></li>
+        {% endfor %}
+        </ul>
+        <input type="submit" />
+    </form>
+</div>
+
+{% endblock %}
