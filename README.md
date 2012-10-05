@@ -14,6 +14,6 @@ from taciturn import Battle
 
 Webapp Dependencies
 
-* Flask - sudo pip install flask
-* Mongodb - http://www.mongodb.org/display/DOCS/Quickstart
-* Pymongo - sudo pip install pymongo
+* Flask - pip install flask
+* SQLAlchemy - pip install Flask-SQLAlchemy
+* Requests - pip install requests

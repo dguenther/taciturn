@@ -9,7 +9,7 @@
     <h3>Load a Campaign</h3>
     <ul>
     {% for c in campaigns %}
-        <li><a href="{{ url_for('battle_setup', campaign_id=c) }}">{{ c }}</a></li>
+        <li><a href="{{ url_for('battle_setup', campaign_id=c.id) }}">{{ c }}</a></li>
     {% endfor %}
     </ul>
 </div>
