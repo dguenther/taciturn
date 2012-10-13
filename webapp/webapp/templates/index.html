@@ -2,14 +2,14 @@
 {% block body %}
 
 <div>
-<a href="{{ url_for('battle_setup') }}">Setup a New Battle</a>
+<a href="{{ url_for('new_campaign') }}">New Campaign</a>
 </div>
 
 <div>
-    <h3>Load a Campaign</h3>
+    <h3>Load Campaign</h3>
     <ul>
     {% for c in campaigns %}
-        <li><a href="{{ url_for('battle_setup', campaign_id=c.id) }}">{{ c }}</a></li>
+        <li><a href="{{ url_for('view_campaign', campaign_id=c.id) }}">{{ c }}</a></li>
     {% endfor %}
     </ul>
 </div>

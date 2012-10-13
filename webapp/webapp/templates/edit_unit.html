@@ -1,13 +1,37 @@
-{% extends "layout.html" %}
-{% block body %}
+{% block unit_editor %}
 
-<form action="{{ url_for('edit_unit_post') }}" method="POST">
-    <dl>
-        <dt>Name:</dt>
-        <dd><input type="text" size="30" name="name" /></dd>
-    </dl>
-    <input type="hidden" name="unit_id" value="{{ unit.id }}" />
-    <input type="submit" />
-</form>
+<div id="unit_modal" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Add/Edit Unit</h3>
+    </div>
+    <div class="modal-body">
+    <!-- form will be inserted here dynamically -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">Close</a>
+        <button id="save_unit" class="btn btn-primary">Save</a>
+    </div>
+</div>
 
-{% endblock %}
+<script type="text/javascript">
+    $("#save_unit").click(function (event) {
+        $('#edit_unit_form').submit();
+        /*
+        var $form = $('#edit_unit_form'),
+            name = $form.find('input[name="name"]').val(),
+            speed = $form.find('input[name="speed"]').val(),
+            ct = $form.find('input[name="ct"]').val(),
+            url = $form.attr('action');
+
+        $.post(url,
+            {
+                name: name,
+                speed: speed,
+                ct: ct
+            });
+        */
+    });
+</script>
+
+{% endblock unit_editor %}

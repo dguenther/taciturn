@@ -1,0 +1,11 @@
+<form action="{{ url_for('edit_unit_post', campaign_id=campaign_id) }}" method="POST" id="edit_unit_form">
+    <dl>
+        <dt>Name:</dt>
+        <dd><input type="text" size="30" name="name" value="{{ unit.name }}"/></dd>
+        <dt>Speed:</dt>
+        <dd><input type="text" size="30" name="speed" value="{{ unit.speed }}" /></dd>
+        <dt>CT:</dt>
+        <dd><input type="text" size="30" name="ct" value="{{ unit.ct }}" /></dd>
+    </dl>
+    <input type="hidden" name="unit_id" value="{{ unit.id }}" />
+</form>

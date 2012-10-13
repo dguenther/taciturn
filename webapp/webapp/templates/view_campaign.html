@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h3>Campaign: {{ campaign.name }} | <a href="{{ url_for('edit_campaign', campaign_id=campaign.id) }}">Edit</a></h3>
+<div>
+    {% include 'edit_unit_list.html' %}
+    <a href="#">New Battle</a>
+    <ul id="battle_list">
+    {% for b in battles %}
+        <li>
+            <a href="{{ url_for('edit_battle', battle_id=b.id) }}" role="button" class="btn" data-toggle="modal" data-target="#battle_modal">Edit Battle</a>
+            <dl>
+                <dt>Name:</dt>
+                <dd>{{ b.name }}</dd>
+                <dt>Speed:</dt>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

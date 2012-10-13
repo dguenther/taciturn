@@ -22,7 +22,7 @@ class Unit(taciturn.Unit, db.Model):
         self.battles = battles
         
     def __repr__(self):
-        return '<Unit %s>' % self.name
+        return '<Unit %s: %s>' % (self.id, self.name)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,21 +35,24 @@ class User(db.Model):
 
 class Campaign(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(40), unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     battles = db.relationship('Battle', backref='campaign')
     units = db.relationship('Unit', backref='campaign')
-    def __init__(self, user_id):
+    def __init__(self, user_id, name):
         self.user_id = user_id
+        self.name = name
 
     def __repr__(self):
-        return '<Campaign %s>' % self.id
+        return '<Campaign %s: %s>' % (self.id, self.name)
 
 class Battle(taciturn.Battle, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(40))
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'))
     units = db.relationship('Unit', secondary=unit_battles, backref=db.backref('battles'))
     def __init__(self, campaign_id):
         self.campaign_id = campaign_id
 
     def __repr__(self):
-        return '<Battle %s>' % self.id
+        return '<Battle %s: %s>' % (self.id, self.name)

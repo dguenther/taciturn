@@ -47,6 +47,7 @@ def login():
 @app.route('/auth/logout', methods=['POST'])
 def logout():
     session.pop('email', None)
+    session.pop('user_id', None)
     return redirect(url_for('index'))
 
 @app.route('/')
@@ -61,24 +62,55 @@ def index():
     assert user and user.campaigns is not None
     return render_template('index.html', campaigns=user.campaigns)
 
-@app.route('/setup')
-@app.route('/setup/<int:campaign_id>')
-def battle_setup(campaign_id=None):
-    if campaign_id is None:
-        campaign = Campaign(user_id=session['user_id'])
-        db.session.add(campaign)
-        db.session.commit()
-    else:
-        campaign = Campaign.query.filter_by(id=campaign_id).first()
-    battle = Battle(campaign_id=campaign.id)
-    db.session.add(battle)
+@app.route('/campaign/new', methods=['GET'])
+def new_campaign():
+    return render_template('new_campaign.html')
+@app.route('/campaign/new', methods=['POST'])
+def new_campaign_post():
+    name = request.form['name']
+    campaign = Campaign(name=name, user_id=session['user_id'])
+    db.session.add(campaign)
     db.session.commit()
-    units = Unit.query.filter_by(campaign_id=campaign.id)
-    return render_template('battle_setup.html', units=units, campaign_id=campaign.id, battle_id=battle.id)
+    return redirect(url_for('view_campaign', campaign_id=campaign.id))
 
-@app.route('/upload_units')
-def upload_units():
-    pass
+@app.route('/campaign/edit/<int:campaign_id>', methods=['GET'])
+def edit_campaign(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    return render_template('edit_campaign.html', campaign=campaign)
+@app.route('/campaign/edit/<int:campaign_id>', methods=['POST'])
+def edit_campaign_post(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    campaign.name = request.form['name']
+    db.session.commit()
+    return redirect(url_for('view_campaign', campaign_id=campaign.id))
+
+@app.route('/campaign/<int:campaign_id>', methods=['GET'])
+def view_campaign(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    units = Unit.query.filter_by(campaign_id=campaign.id).all()
+    return render_template('view_campaign.html', campaign=campaign, units=units)
+
+@app.route('/campaign/<int:campaign_id>/unit/new', methods=['GET'])
+def new_unit(campaign_id):
+    return render_template('edit_unit_form.html', unit=None, campaign_id=campaign_id)
+@app.route('/campaign/<int:campaign_id>/unit/edit/<int:unit_id>', methods=['GET'])
+def edit_unit(campaign_id, unit_id):
+    unit = Unit.query.filter_by(id=unit_id).first_or_404()
+    return render_template('edit_unit.html', unit=unit, campaign_id=campaign_id)
+@app.route('/campaign/<int:campaign_id>/unit/edit', methods=['POST'])
+def edit_unit_post(campaign_id):
+    unit_id = request.form['unit_id']
+    if unit_id is None:
+        unit = Unit(campaign_id=campaign_id)
+    else:
+        unit = Unit.query.filter_by(id=unit_id).first()
+    assert unit.campaign_id == campaign_id
+    unit.name = request.form['name']
+    unit.speed = request.form['speed']
+    unit.ct = request.form['ct']
+    db.session.commit()
+    return redirect(url_for('view_campaign', campaign_id=campaign_id))
+
 
 @app.route('/edit_unit/<int:campaign_id>/<int:battle_id>')
 @app.route('/edit_unit/<int:campaign_id>/<int:battle_id>/<int:unit_id>')
