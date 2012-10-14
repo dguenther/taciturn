@@ -1,6 +1,8 @@
 import taciturn
 from webapp import db
 
+from sqlalchemy.orm import validates
+
 unit_battles = db.Table('unit_battles',
     db.Column('unit_id', db.Integer, db.ForeignKey('unit.id')),
     db.Column('battle_id', db.Integer, db.ForeignKey('battle.id'))
@@ -23,6 +25,16 @@ class Unit(taciturn.Unit, db.Model):
         
     def __repr__(self):
         return '<Unit %s: %s>' % (self.id, self.name)
+
+    @validates('speed')
+    def validate_speed(self, key, speed):
+        return int(speed)
+    @validates('ct')
+    def validate_ct(self, key, ct):
+        return int(ct)
+    @validates('order_num')
+    def validate_order_num(self, key, order_num):
+        return int(order_num)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

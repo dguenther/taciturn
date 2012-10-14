@@ -1,4 +1,8 @@
-<form action="{{ url_for('edit_unit_post', campaign_id=campaign_id) }}" method="POST" id="edit_unit_form">
+{% extends "layout.html" %}
+{% block body %}
+
+<h3>Edit Unit: {{ unit.name }}</h3>
+<form method="POST">
     <dl>
         <dt>Name:</dt>
         <dd><input type="text" size="30" name="name" value="{{ unit.name }}"/></dd>
@@ -6,6 +10,9 @@
         <dd><input type="text" size="30" name="speed" value="{{ unit.speed }}" /></dd>
         <dt>CT:</dt>
         <dd><input type="text" size="30" name="ct" value="{{ unit.ct }}" /></dd>
+        <dt>Order Number:</dt>
+        <dd><input type="text" size="30" name="order_num" value="{{ unit.order_num }}" /></dd>
     </dl>
-    <input type="hidden" name="unit_id" value="{{ unit.id }}" />
+    <button type="submit">Save</button>
 </form>
+{% endblock %}

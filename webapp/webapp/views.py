@@ -1,15 +1,24 @@
-from flask import g, render_template, redirect, url_for, request, session
+from flask import g, render_template, redirect, url_for, request, session, send_from_directory
 import requests
 import json
+import os
 
 from webapp import app, db
 from webapp.utils import get_unit_id, get_battle_id, get_campaign_id
 from webapp.models import Unit, Campaign, Battle, User
 
-# authentication decorator
+# TODO: authentication decorator
 # http://flask.pocoo.org/docs/patterns/viewdecorators/
 # http://flask.pocoo.org/snippets/8/
 # or just pre-request handler that checks session.email?
+# how to check if campaign/battle/unit user is trying to access belongs to them?
+
+# TODO: make/find something to map form params to object fields (setattr)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 # source: https://developer.mozilla.org/en-US/docs/Persona/Quick_Setup
 @app.route('/auth/login', methods=['POST'])
@@ -53,8 +62,6 @@ def logout():
 @app.route('/')
 def index():
     print session
-    print session.get('email')
-    print dir(session)
     if 'email' not in session:
         return render_template('index.html')
 
@@ -64,7 +71,7 @@ def index():
 
 @app.route('/campaign/new', methods=['GET'])
 def new_campaign():
-    return render_template('new_campaign.html')
+    return render_template('campaign/new.html')
 @app.route('/campaign/new', methods=['POST'])
 def new_campaign_post():
     name = request.form['name']
@@ -76,7 +83,7 @@ def new_campaign_post():
 @app.route('/campaign/edit/<int:campaign_id>', methods=['GET'])
 def edit_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
-    return render_template('edit_campaign.html', campaign=campaign)
+    return render_template('campaign/edit.html', campaign=campaign)
 @app.route('/campaign/edit/<int:campaign_id>', methods=['POST'])
 def edit_campaign_post(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
@@ -87,23 +94,29 @@ def edit_campaign_post(campaign_id):
 @app.route('/campaign/<int:campaign_id>', methods=['GET'])
 def view_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
-    units = Unit.query.filter_by(campaign_id=campaign.id).all()
-    return render_template('view_campaign.html', campaign=campaign, units=units)
+    return render_template('campaign/view.html', campaign=campaign, units=campaign.units, battles=campaign.battles)
 
 @app.route('/campaign/<int:campaign_id>/unit/new', methods=['GET'])
 def new_unit(campaign_id):
-    return render_template('edit_unit_form.html', unit=None, campaign_id=campaign_id)
+    return render_template('unit/new.html')
+@app.route('/campaign/<int:campaign_id>/unit/new', methods=['POST'])
+def new_unit_post(campaign_id):
+    unit = Unit(campaign_id=campaign_id)
+    unit.name = request.form['name']
+    unit.speed = request.form['speed']
+    unit.ct = request.form['ct']
+    unit.order_num = request.form['order_num']
+    db.session.add(unit)
+    db.session.commit()
+    return redirect(url_for('view_campaign', campaign_id=campaign_id))
+
 @app.route('/campaign/<int:campaign_id>/unit/edit/<int:unit_id>', methods=['GET'])
 def edit_unit(campaign_id, unit_id):
-    unit = Unit.query.filter_by(id=unit_id).first_or_404()
-    return render_template('edit_unit.html', unit=unit, campaign_id=campaign_id)
-@app.route('/campaign/<int:campaign_id>/unit/edit', methods=['POST'])
-def edit_unit_post(campaign_id):
-    unit_id = request.form['unit_id']
-    if unit_id is None:
-        unit = Unit(campaign_id=campaign_id)
-    else:
-        unit = Unit.query.filter_by(id=unit_id).first()
+    unit = Unit.query.get_or_404(unit_id)
+    return render_template('unit/edit.html', unit=unit)
+@app.route('/campaign/<int:campaign_id>/unit/edit/<int:unit_id>', methods=['POST'])
+def edit_unit_post(campaign_id, unit_id):
+    unit = Unit.query.get_or_404(unit_id)
     assert unit.campaign_id == campaign_id
     unit.name = request.form['name']
     unit.speed = request.form['speed']
@@ -112,26 +125,24 @@ def edit_unit_post(campaign_id):
     return redirect(url_for('view_campaign', campaign_id=campaign_id))
 
 
-@app.route('/edit_unit/<int:campaign_id>/<int:battle_id>')
-@app.route('/edit_unit/<int:campaign_id>/<int:battle_id>/<int:unit_id>')
-def edit_unit(campaign_id, battle_id, unit_id=None):
-    # make new unit
-    battle = Battle.query.filter_by(id=battle_id).first()
-    if unit_id is None:
-        unit = Unit(campaign_id=campaign_id, battles=[battle])
-        db.session.add(unit)
-        db.session.commit()
-    else:
-        unit = Unit.query.filter_by(id=unit_id).first()
-    assert unit.campaign_id == campaign_id
-    assert any([x.id == battle_id for x in unit.battles])
-    return render_template('edit_unit.html', unit=unit)
-
-@app.route('/edit_unit', methods=['POST'])
-def edit_unit_post():
-    unit_id = int(request.form['unit_id'])
-    unit = Unit.query.filter_by(id=unit_id).first()
-    unit.name = request.form['name']
+@app.route('/campaign/<int:campaign_id>/battle/new', methods=['GET'])
+def new_battle(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    return render_template('battle/new.html', units=campaign.units)
+@app.route('/campaign/<int:campaign_id>/battle/new', methods=['POST'])
+def new_battle_post(campaign_id):
+    print request.form
+    battle = Battle(campaign_id=campaign_id)
+    battle.name = request.form['name']
+    for unit_id in request.form.getlist('units'):
+        unit = Unit.query.get(unit_id)
+        battle.units.append(unit)
+    db.session.add(battle)
     db.session.commit()
-    return redirect(url_for(('battle_setup'), campaign_id=unit.campaign_id))
+    return redirect(url_for('fight_battle', campaign_id=campaign_id, battle_id=battle.id))
+
+@app.route('/campaign/<int:campaign_id>/battle/<int:battle_id>', methods=['GET'])
+def fight_battle(campaign_id, battle_id):
+    return "fight!"
+
 

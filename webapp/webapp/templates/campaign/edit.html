@@ -3,12 +3,12 @@
 
 <h3>Edit Campaign</h3>
 <div>
-    <form action="{{ url_for('edit_campaign_post', campaign_id=campaign.id) }}" method="POST">
+    <form method="POST">
         <dl>
             <dt>Name:</dt>
             <dd><input type="text" size="30" name="name" value="{{ campaign.name }}" \></dd>
         </dl>
-        <button type="submit" class="btn btn-success">Save</a>
+        <button type="submit">Save</a>
     </form>
 </div>
 

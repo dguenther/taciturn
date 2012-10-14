@@ -1,0 +1,17 @@
+{% block battle_list %}
+
+<h4>Battles:</h4>
+<a href="{{ url_for('new_battle', campaign_id=campaign.id) }}">Add New Battle</a>
+<ul id="battle_list">
+{% for b in battles %}
+    <li>
+        <a href="{{ url_for('edit_battle', battle_id=b.id, campaign_id=campaign.id) }}">Edit Battle</a>
+        <dl>
+            <dt>Name:</dt>
+            <dd>{{ b.name }}</dd>
+        </dl>
+    </li>
+{% endfor %}
+</ul>
+
+{% endblock battle_list %}
