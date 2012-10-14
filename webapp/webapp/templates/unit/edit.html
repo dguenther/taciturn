@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h3>Edit Unit: {{ unit.name }}</h3>
+<form method="POST">
+    <dl>
+        <dt>Name:</dt>
+        <dd><input type="text" size="30" name="name" value="{{ unit.name }}"/></dd>
+        <dt>Speed:</dt>
+        <dd><input type="text" size="30" name="speed" value="{{ unit.speed }}" /></dd>
+        <dt>CT:</dt>
+        <dd><input type="text" size="30" name="ct" value="{{ unit.ct }}" /></dd>
+        <dt>Order Number:</dt>
+        <dd><input type="text" size="30" name="order_num" value="{{ unit.order_num }}" /></dd>
+    </dl>
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

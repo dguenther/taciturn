@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h3>Edit Campaign</h3>
+<div>
+    <form method="POST">
+        <dl>
+            <dt>Name:</dt>
+            <dd><input type="text" size="30" name="name" value="{{ campaign.name }}" \></dd>
+        </dl>
+        <button type="submit">Save</a>
+    </form>
+</div>
+
+{% endblock %}
