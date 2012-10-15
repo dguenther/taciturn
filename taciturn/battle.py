@@ -29,7 +29,7 @@ class Battle:
         # goto next thing in turn_order
         pass
         
-    def generate_display_list(self):
+    def generate_display_list(self, list_length):
         order_display = copy(self.turn_order)
         # while order_display isn't full
         #   count through items in order_display
@@ -37,7 +37,7 @@ class Battle:
         #       add unit's next active turn into order_display and sort
         idx = 0
         unit_gens = {}
-        while idx < 40:
+        while idx < list_length:
             item = order_display[idx][1]
             if isinstance(item, Unit):
                 if item not in unit_gens:
@@ -100,6 +100,6 @@ class Battle:
     def start(self):
         self.setup()
         #self.generate_display_list()
-        pprint(self.generate_display_list())
+        pprint(self.generate_display_list(40))
         #while True:
         #    self.tick_clock()

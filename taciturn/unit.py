@@ -15,6 +15,13 @@ class Unit:
         self.statuses = []
         self.slow_action = None
         
+    def get_attributes(self):
+        attributes = {}
+        attributes['speed'] = self.speed
+        attributes['ct'] = self.ct
+        attributes['order_num'] = self.order_num
+        return attributes
+        
     def __str__(self):
         return self.name
         
