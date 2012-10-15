@@ -2,7 +2,6 @@
 
 from flask import Flask, g
 from flask.ext.sqlalchemy import SQLAlchemy
-import pymongo
 
 app = Flask(__name__)
 app.config.from_pyfile('webapp.cfg')
