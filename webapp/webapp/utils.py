@@ -1,5 +1,3 @@
-import pymongo
-
 # NOT CONCURRENCY SAFE
 # replace these with redis/memcached calls? or use just relational database
 def get_campaign_id(db):
