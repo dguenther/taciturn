@@ -22,6 +22,10 @@ class Unit:
         attributes['order_num'] = self.order_num
         return attributes
         
+    def begin_casting(self, slow_action_template):
+        self.slow_action = slow_action_template.evaluate_formula(self)
+        return self.slow_action
+        
     def __str__(self):
         return self.name
         
