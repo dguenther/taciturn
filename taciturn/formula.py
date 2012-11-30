@@ -57,7 +57,11 @@ class Formula:
             '+': operator.add,
             '-': operator.sub,
             '*': operator.mul,
-            '/': operator.div
+            '/': operator.div,
+            '//': operator.floordiv,
+            '%': operator.mod,
+            '**': operator.pow,
+            '^': operator.pow
         }
         return operations[operator](operand1, operand2)
     

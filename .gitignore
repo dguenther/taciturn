@@ -147,6 +147,9 @@ develop-eggs
 .installed.cfg
 venv
 
+# SQLite DB
+*.db
+
 # Installer logs
 pip-log.txt
 

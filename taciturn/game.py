@@ -13,5 +13,5 @@ class Game:
         self.units = units
         
     def play(self):
-        battle = Battle(self.units)
+        battle = Battle(self, self.units)
         battle.start()

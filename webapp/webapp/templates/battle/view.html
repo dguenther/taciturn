@@ -1,10 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h3>Campaign: {{ campaign.name }} | <a href="{{ url_for('edit_campaign', campaign_id=campaign.id) }}">Edit</a></h3>
+<h3>Battle: {{ battle.name }} </h3>
 <div>
-    {% include 'shared/edit_unit_list.html' %}
-    {% include 'shared/edit_battle_list.html' %}
+<ol id="turn_order">
+{% for b in battle.generate_display_list(40) %}
+	<li>{{ b.name }}</li>
+{% endfor %}
+<ol id="turn_order">
 </div>
 
 {% endblock %}

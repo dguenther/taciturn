@@ -1,105 +1,80 @@
-from unit import Unit
-from status import Status
-from slowaction import SlowAction
-from collections import defaultdict
-from copy import deepcopy, copy
+from turnlistunit import TurnListUnit
 from pprint import pprint
-from math import ceil
+import heapq
+
 
 class Battle:
 
     def __init__(self):
+        self.campaign = None
         self.units = []
         self.clocktick = 1
         self.turn_order = []
-        
-    def __init__(self, units):
+
+    def __init__(self, campaign, units):
+        self.campaign = campaign
         self.units = units
         self.clocktick = 1
         self.turn_order = []
-        
+
     def setup(self):
         for unit in self.units:
             # default ct is 50
             unit.ct = 50
-            self.turn_order.append((self.next_turn_tick(unit).next(), unit))
-            self.turn_order.sort(cmp=self.turn_order_compare)
-            
-    def tick_clock(self):
-        # goto next thing in turn_order
-        pass
-        
+
+    def generate_status_list(self):
+        list = []
+        for unit in self.units:
+            for status in unit.statuses:
+                list.append(status)
+        return list
+
+    def generate_slow_action_list(self):
+        list = []
+        for unit in self.units:
+            if (unit.slow_action):
+                list.append(unit.slow_action)
+        return list
+
+    def generate_unit_list(self):
+        list = []
+        for unit in self.units:
+            new_unit = TurnListUnit(unit)
+            new_unit.generate_tick()
+            list.append(new_unit)
+        return list
+
     def generate_display_list(self, list_length):
-        order_display = copy(self.turn_order)
-        # while order_display isn't full
-        #   count through items in order_display
-        #   if item is a unit
-        #       add unit's next active turn into order_display and sort
-        idx = 0
-        unit_gens = {}
-        while idx < list_length:
-            item = order_display[idx][1]
-            if isinstance(item, Unit):
-                if item not in unit_gens:
-                    unit_gens[item] = self.next_turn_tick(item)
-                    # get rid of unit's next turn (which is already
-                    # included from the turn_order list that was copied)
-                    unit_gens[item].next()
-                
-                t = unit_gens[item].next()
+        status_list = self.generate_status_list()
+        slow_action_list = self.generate_slow_action_list()
+        unit_list = self.generate_unit_list()
+        heap = []
+        display_list = []
 
-                # slice the array to sort smaller portion
-                # for performance reasons at small (<10k) list sizes
-                order_display.append((t, item))
-                order_display[idx:] = sorted(order_display[idx:], cmp=self.turn_order_compare)
-            idx += 1
-        return order_display
+        # set up heap
+        for item in status_list:
+            heapq.heappush(heap, item)
+        for item in slow_action_list:
+            heapq.heappush(heap, item)
+        for item in unit_list:
+            heapq.heappush(heap, item)
 
-    def turn_order_compare(self, x, y):
-        if x[0] != y[0]:
-            return cmp(x[0], y[0])
-        else:
-            x = x[1]
-            y = y[1]
-            # if x is a Status, it should come first regardless
-            # (order of two Statuses ending doesn't matter)
-            if isinstance(x, Status):
-                return -1
-            # otherwise y should come first (x wasn't a Status)
-            elif isinstance(y, Status):
-                return 1
-            # if neither were Statuses
-            elif isinstance(x, SlowAction):
-                # if both were SlowActions, whichever comes first in the battle's
-                # turn_order list should be first (the casting order is implicit
-                # in the order of the SlowActions in the turn_order list)
-                if isinstance(y, SlowAction):
-                    return cmp(self.turn_order.indexof(x), self.turn_order.indexof(y))
-                # otherwise x is a SlowAction and y is a Unit so x comes first
-                else:
-                    return -1
-            # otherwise, x is a Unit and y is a SlowAction so y comes first
-            elif isinstance(y, SlowAction):
-                return 1
-            # otherwise both are Units and order is determined by their
-            # order_num for this battle
-            elif isinstance(x, Unit) and isinstance(y, Unit):
-                return cmp(x.order_num, y.order_num)
-            else:
-                assert False
-        
-    def next_turn_tick(self, unit):
-        ct = unit.ct
-        last_tick = 0
-        while True:
-            tick = int(ceil((100 - ct) / unit.speed))
-            yield last_tick + tick
-            last_tick += tick
-            ct = ct + tick * unit.speed - 100
-        
+        # pull from heap to make the list
+        while list_length > 0:
+            current_item = heapq.heappop(heap)
+            try:
+                # make special allowances for units
+                current_item.generate_tick()
+                heapq.heappush(heap, current_item)
+                current_item = current_item.unit
+            except AttributeError:
+                # current_item isn't a unit, so don't do anything different
+                pass
+            display_list.append(current_item)
+            list_length -= 1
+        return display_list
+
     def start(self):
         self.setup()
         #self.generate_display_list()
         pprint(self.generate_display_list(40))
-        #while True:
-        #    self.tick_clock()

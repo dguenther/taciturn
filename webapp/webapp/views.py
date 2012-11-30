@@ -20,22 +20,24 @@ from webapp.models import Unit, Campaign, Battle, User
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
 # source: https://developer.mozilla.org/en-US/docs/Persona/Quick_Setup
 @app.route('/auth/login', methods=['POST'])
 def login():
     # The request has to have an assertion for us to verify
     if 'assertion' not in request.form:
         abort(400)
- 
+
     # Send the assertion to Mozilla's verifier service.
     data = {'assertion': request.form['assertion'], 'audience': app.config['SERVER']['host']}
+    print data
     resp = requests.post('https://verifier.login.persona.org/verify', data=data, verify=True)
- 
+    print resp
     # Did the verifier respond?
     if resp.ok:
         # Parse the response
         verification_data = json.loads(resp.content)
- 
+        print verification_data
         # Check if the assertion was valid
         if verification_data['status'] == 'okay':
             # Log the user in by setting a secure session cookie
@@ -49,15 +51,17 @@ def login():
             # Add user_id to session
             session['user_id'] = user.id
             return resp.content
- 
+
     # Oops, something failed. Abort.
-    abort(500)
+    resp.raise_for_status()
+
 
 @app.route('/auth/logout', methods=['POST'])
 def logout():
     session.pop('email', None)
     session.pop('user_id', None)
     return redirect(url_for('index'))
+
 
 @app.route('/')
 def index():
@@ -69,9 +73,12 @@ def index():
     assert user and user.campaigns is not None
     return render_template('index.html', campaigns=user.campaigns)
 
+
 @app.route('/campaign/new', methods=['GET'])
 def new_campaign():
     return render_template('campaign/new.html')
+
+
 @app.route('/campaign/new', methods=['POST'])
 def new_campaign_post():
     name = request.form['name']
@@ -80,10 +87,13 @@ def new_campaign_post():
     db.session.commit()
     return redirect(url_for('view_campaign', campaign_id=campaign.id))
 
+
 @app.route('/campaign/edit/<int:campaign_id>', methods=['GET'])
 def edit_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
     return render_template('campaign/edit.html', campaign=campaign)
+
+
 @app.route('/campaign/edit/<int:campaign_id>', methods=['POST'])
 def edit_campaign_post(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
@@ -91,14 +101,18 @@ def edit_campaign_post(campaign_id):
     db.session.commit()
     return redirect(url_for('view_campaign', campaign_id=campaign.id))
 
+
 @app.route('/campaign/<int:campaign_id>', methods=['GET'])
 def view_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
     return render_template('campaign/view.html', campaign=campaign, units=campaign.units, battles=campaign.battles)
 
+
 @app.route('/campaign/<int:campaign_id>/unit/new', methods=['GET'])
 def new_unit(campaign_id):
     return render_template('unit/new.html')
+
+
 @app.route('/campaign/<int:campaign_id>/unit/new', methods=['POST'])
 def new_unit_post(campaign_id):
     unit = Unit(campaign_id=campaign_id)
@@ -110,10 +124,13 @@ def new_unit_post(campaign_id):
     db.session.commit()
     return redirect(url_for('view_campaign', campaign_id=campaign_id))
 
+
 @app.route('/campaign/<int:campaign_id>/unit/edit/<int:unit_id>', methods=['GET'])
 def edit_unit(campaign_id, unit_id):
     unit = Unit.query.get_or_404(unit_id)
     return render_template('unit/edit.html', unit=unit)
+
+
 @app.route('/campaign/<int:campaign_id>/unit/edit/<int:unit_id>', methods=['POST'])
 def edit_unit_post(campaign_id, unit_id):
     unit = Unit.query.get_or_404(unit_id)
@@ -129,6 +146,8 @@ def edit_unit_post(campaign_id, unit_id):
 def new_battle(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
     return render_template('battle/new.html', units=campaign.units)
+
+
 @app.route('/campaign/<int:campaign_id>/battle/new', methods=['POST'])
 def new_battle_post(campaign_id):
     print request.form
@@ -141,8 +160,8 @@ def new_battle_post(campaign_id):
     db.session.commit()
     return redirect(url_for('fight_battle', campaign_id=campaign_id, battle_id=battle.id))
 
+
 @app.route('/campaign/<int:campaign_id>/battle/<int:battle_id>', methods=['GET'])
 def fight_battle(campaign_id, battle_id):
-    return "fight!"
-
-
+    battle = Battle.query.get(battle_id)
+    return render_template('battle/view.html', battle=battle)

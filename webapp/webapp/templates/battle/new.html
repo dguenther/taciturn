@@ -9,7 +9,7 @@
             <dd><input type="text" size="30" name="name" /></dd>
         </dl>
         {% for u in units %}
-        <input type="checkbox" name="units" value="{{ u.id }}" />{{ u.name }}
+        <input type="checkbox" id="u_{{ u.id }}" name="units" value="{{ u.id }}" /><label for="u_{{ u.id }}">{{ u.name }}</label>
         {% endfor %}
         <button type="submit">Create</a>
     </form>
