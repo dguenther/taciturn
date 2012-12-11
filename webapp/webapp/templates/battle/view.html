@@ -4,10 +4,12 @@
 <h3>Battle: {{ battle.name }} </h3>
 <div>
 <ol id="turn_order">
-{% for b in battle.generate_display_list(40) %}
+{% for b in battle.make_display_list(40) %}
 	<li>{{ b.name }}</li>
 {% endfor %}
 <ol id="turn_order">
 </div>
-
+<form method="post" action="{{ battle.id }}/nextturn">
+    <input type="submit" value="Next Turn" />
+</form>
 {% endblock %}

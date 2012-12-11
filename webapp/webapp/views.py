@@ -163,5 +163,14 @@ def new_battle_post(campaign_id):
 
 @app.route('/campaign/<int:campaign_id>/battle/<int:battle_id>', methods=['GET'])
 def fight_battle(campaign_id, battle_id):
-    battle = Battle.query.get(battle_id)
+    battle = Battle.query.get_or_404(battle_id)
     return render_template('battle/view.html', battle=battle)
+
+
+@app.route('/campaign/<int:campaign_id>/battle/<int:battle_id>/nextturn', methods=['POST'])
+def next_turn(campaign_id, battle_id):
+    battle = Battle.query.get_or_404(battle_id)
+    assert battle.campaign_id == campaign_id
+    battle.next_turn()
+    db.session.commit()
+    return redirect(url_for('fight_battle', campaign_id=campaign_id, battle_id=battle.id))

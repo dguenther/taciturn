@@ -1,8 +1,9 @@
-from turnlistcomparable import TurnListComparable
+from turnlistitem import TurnListItem
 from turnlistpriority import TurnListPriority
 
 
-class SlowAction(TurnListComparable):
+class SlowAction(TurnListItem):
+
     def __init__(self):
         self.name = ''
         self.formula = None
@@ -21,10 +22,18 @@ class SlowAction(TurnListComparable):
         new_action.charge_ticks = self.formula.evaluate(caster)
         return new_action
 
-    '''Inherited from TurnListComparable'''
     def ticks_remaining(self):
+        """Inherited from TurnListItem"""
         return self.charge_ticks
 
-    '''Inherited from TurnListComparable'''
     def turn_priority(self):
+        """Inherited from TurnListItem"""
         return TurnListPriority(0, 0)
+
+    def next_turn(self):
+        """Inherited from TurnListItem"""
+        self.caster.slow_action = None
+
+    def advance_ticks(self, ticks):
+        """Inherited from TurnListItem"""
+        self.charge_ticks -= ticks

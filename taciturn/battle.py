@@ -22,21 +22,21 @@ class Battle:
             # default ct is 50
             unit.ct = 50
 
-    def generate_status_list(self):
+    def make_status_list(self):
         list = []
         for unit in self.units:
             for status in unit.statuses:
                 list.append(status)
         return list
 
-    def generate_slow_action_list(self):
+    def make_slow_action_list(self):
         list = []
         for unit in self.units:
             if (unit.slow_action):
                 list.append(unit.slow_action)
         return list
 
-    def generate_unit_list(self):
+    def make_unit_list(self):
         list = []
         for unit in self.units:
             new_unit = TurnListUnit(unit)
@@ -44,12 +44,11 @@ class Battle:
             list.append(new_unit)
         return list
 
-    def generate_display_list(self, list_length):
-        status_list = self.generate_status_list()
-        slow_action_list = self.generate_slow_action_list()
-        unit_list = self.generate_unit_list()
+    def make_turn_order_heap(self):
+        status_list = self.make_status_list()
+        slow_action_list = self.make_slow_action_list()
+        unit_list = self.make_unit_list()
         heap = []
-        display_list = []
 
         # set up heap
         for item in status_list:
@@ -58,6 +57,11 @@ class Battle:
             heapq.heappush(heap, item)
         for item in unit_list:
             heapq.heappush(heap, item)
+        return heap
+
+    def make_display_list(self, list_length):
+        heap = self.make_turn_order_heap()
+        display_list = []
 
         # pull from heap to make the list
         while list_length > 0:
@@ -74,7 +78,15 @@ class Battle:
             list_length -= 1
         return display_list
 
+    def next_turn(self):
+        heap = self.make_turn_order_heap()
+        active_item = heapq.heappop(heap)
+        ticks = active_item.ticks_remaining()
+        active_item.next_turn()
+        for item in heap:
+            item.advance_ticks(ticks)
+
     def start(self):
         self.setup()
-        #self.generate_display_list()
-        pprint(self.generate_display_list(40))
+        #self.make_display_list()
+        pprint(self.make_display_list(40))
